@@ -1,0 +1,116 @@
+package tp20;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Arrays;
+
+public class MatriceRequestHandler extends Thread {
+
+    private Socket socket;
+
+    public MatriceRequestHandler(Socket socket) {
+        this.socket = socket;
+    }
+
+    @Override
+    public void run() {
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+
+            String opId = reader.readLine();
+            System.out.println("Operation requested: " + opId);
+
+            if (opId.equals("add")) {
+                int[][] matA = readMatrix(reader);
+                int[][] matB = readMatrix(reader);
+                int[][] result = add(matA, matB);
+                writer.println(matrixToString(result));
+            } else if (opId.equals("multp")) {
+                int[][] matA = readMatrix(reader);
+                int[][] matB = readMatrix(reader);
+                int[][] result = multp(matA, matB);
+                writer.println(matrixToString(result));
+            } else if (opId.equals("transpose")) {
+                int[][] mat = readMatrix(reader);
+                int[][] result = transpose(mat);
+                writer.println(matrixToString(result));
+            } else {
+                System.err.println(" operation invalid : " + opId);
+            }
+
+            socket.close();
+            System.out.println("Client disconnecte");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private int[][] readMatrix(BufferedReader reader) throws IOException {
+        int lignes = Integer.parseInt(reader.readLine());
+        int cols = Integer.parseInt(reader.readLine());
+        int[][] mat = new int[lignes][cols];
+        for (int i = 0; i < lignes; i++) {
+            String[] ligne= reader.readLine().split(" ");
+            for (int j = 0; j < cols; j++) {
+                mat[i][j] = Integer.parseInt(ligne[j]);
+            }
+        }
+        return mat;
+    }
+
+    private String matrixToString(int[][] mat) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mat.length; i++) {
+            for (int j = 0; j < mat[0].length; j++) {
+                sb.append(mat[i][j]);
+                sb.append(" ");
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
+    private int[][] add(int[][] matA, int[][] matB) {
+        int lignes = matA.length;
+        int cols = matA[0].length;
+        int[][] result = new int[lignes][cols];
+        for (int i = 0; i < lignes; i++) {
+            for (int j = 0; j < cols; j++) {
+                result[i][j] = matA[i][j] + matB[i][j];
+            }
+        }
+        return result;
+    }
+
+private int[][] multp(int[][] matA, int[][] matB) {
+        int lignesA = matA.length;
+        int colsA = matA[0].length;
+        int colsB = matB[0].length;
+        int[][] result = new int[lignesA][colsB];
+        for (int i = 0; i < lignesA; i++) {
+            for (int j = 0; j < colsB; j++) {
+                int sum = 0;
+                for (int k = 0; k < colsA; k++) {
+                    sum += matA[i][k] * matB[k][j];
+                }
+                result[i][j] = sum;
+            }
+        }
+        return result;
+    }
+
+private int[][] transpose(int[][] mat) {
+        int lignes = mat.length;
+        int cols = mat[0].length;
+        int[][] result = new int[cols][lignes];
+        for (int i = 0; i < lignes; i++) {
+            for (int j = 0; j < cols; j++) {
+                result[j][i] = mat[i][j];
+            }
+        }
+        return result;
+    }
+}

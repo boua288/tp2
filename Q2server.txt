@@ -1,0 +1,29 @@
+package tp21;
+
+import java.util.HashMap;
+
+public class Server {
+    private HashMap<String, String> clients;
+
+    public Server() {
+        clients = new HashMap<String, String>();
+    }
+
+    public boolean verifierAuthentification(Utilisateur utilisateur) {
+        String nomUtilisateur = utilisateur.id;
+        String motDePasse = utilisateur.pass;
+
+        if (!clients.containsKey(nomUtilisateur)) {
+            // Si l'utilisateur n'existe pas, on l'ajoute à la liste
+            clients.put(nomUtilisateur, motDePasse);
+            return true;
+        } else if (!clients.get(nomUtilisateur).equals(motDePasse)) {
+            // Si le mot de passe ne correspond pas à celui enregistré, on signale l'erreur
+            return false;
+        } else {
+            // Si tout est correct, on valide l'authentification
+            return true;
+        }
+    }
+}
+

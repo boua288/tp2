@@ -1,0 +1,67 @@
+package tp20;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class MatriceClient {
+
+    public static void main(String[] args) throws IOException {
+        String host = "localhost";
+        int port = 6000;
+
+        Socket socket = new Socket(host, port);
+        System.out.println("Connected to server");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+
+        // Envoie une requête pour la somme de deux matrices
+        writer.println("add");
+        int[][] matA = {{1, 2}, {3, 4}};
+        int[][] matB = {{5, 6}, {7, 8}};
+        writeMatrix(matA, writer);
+        writeMatrix(matB, writer);
+
+        // Attend la réponse du serveur
+        String response = reader.readLine();
+        System.out.println("Resultat de add :");
+        System.out.println(response);
+
+        // Envoie une requête pour le produit de deux matrices
+        writer.println("multp");
+        matA = new int[][]{{1, 2, 3}, {4, 5, 6}};
+        matB = new int[][]{{7, 8}, {9, 10}, {11, 12}};
+        writeMatrix(matA, writer);
+        writeMatrix(matB, writer);
+
+        // Attend la réponse du serveur
+        response = reader.readLine();
+        System.out.println("Resultat de multp");
+        System.out.println(response);
+
+        // Envoie une requête pour la transposée d'une matrice
+        writer.println("transpose");
+        int[][] mat = {{1, 2, 3}, {4, 5, 6}};
+        writeMatrix(mat, writer);
+
+        // Attend la réponse du serveur
+        response = reader.readLine();
+        System.out.println("Resultat de transpose:");
+        System.out.println(response);
+
+        socket.close();
+        System.out.println("Disconnected from server");
+    }
+    private static void writeMatrix(int[][] mat, PrintWriter writer) {
+        writer.println(mat.length);
+        writer.println(mat[0].length);
+        for (int i = 0; i < mat.length; i++) {
+            for (int j = 0; j < mat[0].length; j++) {
+                writer.println(mat[i][j]);
+            }
+        }
+    }
+}

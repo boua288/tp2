@@ -1,0 +1,50 @@
+package tp21;
+
+import java.io.*;
+import java.net.*;
+
+public class Client {
+    private static final String SERVER_ADDRESS = "localhost";
+    private static final int SERVER_PORT = 12345;
+
+    public static void main(String[] args) {
+        try {
+            // se connecter au serveur
+            Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+
+            // créer les flux de communication
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
+            // saisir le nom et le mot de passe de l'utilisateur
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Nom d'utilisateur : ");
+            String id = reader.readLine();
+            System.out.print("Mot de passe : ");
+            String pass = reader.readLine();
+
+            // créer l'objet utilisateur
+            Utilisateur utilisateur = new Utilisateur(id, pass);
+
+            // envoyer l'objet utilisateur au serveur
+            out.writeObject(utilisateur);
+
+            // attendre la réponse du serveur
+            boolean authentifie = in.readBoolean();
+            if (authentifie) {
+                System.out.println("Authentification réussie !");
+                // ici, vous pouvez exécuter les opérations matricielles
+            } else {
+                System.out.println("Nom d'utilisateur ou mot de passe incorrect.");
+            }
+
+            // fermer les flux de communication et la connexion
+            in.close();
+            out.close();
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
